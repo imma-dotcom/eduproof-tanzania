@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduProof Tanzania | Certificate Verification</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect x='2' y='2' width='24' height='24' rx='6' transform='rotate(45 14 14)' fill='%230a0a0a' stroke='%23e84142' stroke-width='2'/%3E%3Cpath d='M9 14l3.5 3.5L19 10.5' stroke='%23e84142' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --surface-2:#1a1a1a;
+    --border:#262626;
+    --border-soft:#1e1e1e;
+    --text:#f5f5f5;
+    --text-muted:#929292;
+    --text-faint:#5c5c5c;
+    --red:#e84142;
+    --red-dim:rgba(232,65,66,0.10);
+    --red-dim-border:rgba(232,65,66,0.32);
+    --green:#34d399;
+    --green-dim:rgba(52,211,153,0.10);
+    --green-dim-border:rgba(52,211,153,0.32);
+    --radius:14px;
+    --radius-sm:9px;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg);}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  a{color:var(--red);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  button{font-family:inherit;cursor:pointer;border:none;}
+  input,select{font-family:inherit;}
+
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+
+  /* ── Decorative peaks watermark ── */
+  .watermark{
+    position:fixed;
+    top:0;left:0;right:0;
+    height:340px;
+    pointer-events:none;
+    opacity:0.05;
+    z-index:0;
+    overflow:hidden;
+  }
+  .watermark svg{width:100%;height:100%;}
+
+  /* ── Topbar ── */
+  .topbar{
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:22px 24px 18px;
+    max-width:680px;
+    margin:0 auto;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand-text h1{
+    font-family:var(--font-display);
+    font-size:18px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .brand-text p{
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:1px;
+    letter-spacing:0.01em;
+  }
+
+  .topbar-right{display:flex;align-items:center;gap:10px;}
+
+  .network-pill{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    font-family:var(--font-mono);
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    padding:6px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--text-faint);
+    flex-shrink:0;
+  }
+  .dot.live{background:var(--green);}
+  @media (prefers-reduced-motion:no-preference){
+    .dot.live{animation:pulse 2.2s ease-in-out infinite;}
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0.5);}
+    50%{box-shadow:0 0 0 4px rgba(52,211,153,0);}
+  }
+
+  .btn{
+    font-size:13.5px;
+    font-weight:500;
+    padding:9px 16px;
+    border-radius:var(--radius-sm);
+    transition:background 0.15s, border-color 0.15s, opacity 0.15s;
+  }
+  .btn-primary{
+    background:var(--red);
+    color:#fff;
+  }
+  .btn-primary:hover{background:#d63839;}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn-ghost{
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+  }
+  .btn-ghost:hover{border-color:var(--text-faint);}
+  .btn-sm{padding:6px 12px;font-size:12.5px;}
+  .btn-block{width:100%;justify-content:center;display:flex;align-items:center;gap:8px;}
+
+  /* ── Container / stats ── */
+  .container{
+    position:relative;
+    z-index:1;
+    max-width:680px;
+    margin:0 auto;
+    padding:4px 24px 64px;
+  }
+
+  .stats{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .stat-block{display:flex;flex-direction:column;gap:2px;}
+  .stat-label{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;}
+  .stat-value{font-family:var(--font-display);font-size:20px;font-weight:600;}
+  .stat-value.mono{font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--text-muted);}
+
+  /* ── Tabs ── */
+  .tabs{
+    display:flex;
+    gap:4px;
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:999px;
+    padding:4px;
+    margin-bottom:22px;
+  }
+  .tab-btn{
+    flex:1;
+    background:transparent;
+    color:var(--text-muted);
+    font-size:13px;
+    font-weight:500;
+    padding:9px 0;
+    border-radius:999px;
+    transition:background 0.15s, color 0.15s;
+  }
+  .tab-btn.active{background:var(--red);color:#fff;}
+  .tab-btn:not(.active):hover{color:var(--text);}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+  @media (prefers-reduced-motion:no-preference){
+    .panel.active{animation:rise 0.25s ease;}
+  }
+  @keyframes rise{
+    from{opacity:0;transform:translateY(4px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border-soft);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .card + .card{margin-top:16px;}
+  .card-title{font-family:var(--font-display);font-size:15px;font-weight:600;margin-bottom:4px;}
+  .card-sub{font-size:12.5px;color:var(--text-faint);margin-bottom:18px;}
+
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:500;
+    color:var(--text-muted);
+    margin-bottom:6px;
+  }
+  .field input, .field select{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:13.5px;
+    padding:10px 12px;
+    border-radius:var(--radius-sm);
+    transition:border-color 0.15s;
+  }
+  .field input:focus, .field select:focus{border-color:var(--red);}
+  .field input::placeholder{color:var(--text-faint);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  select{appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238f8f8f' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:30px;
+  }
+
+  .hint{font-size:11.5px;color:var(--text-faint);margin-top:10px;}
+
+  /* ── Status / result boxes ── */
+  .status{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    font-size:12.5px;
+    padding:11px 13px;
+    border-radius:var(--radius-sm);
+    margin-bottom:16px;
+    border:1px solid transparent;
+    line-height:1.45;
+  }
+  .status.info{background:var(--surface-2);border-color:var(--border);color:var(--text-muted);}
+  .status.success{background:var(--green-dim);border-color:var(--green-dim-border);color:var(--green);}
+  .status.error{background:var(--red-dim);border-color:var(--red-dim-border);color:#ff8788;}
+  .status a{color:inherit;text-decoration:underline;}
+  .status code{font-family:var(--font-mono);font-size:11.5px;}
+
+  .spinner{
+    width:13px;height:13px;border-radius:50%;flex-shrink:0;margin-top:1px;
+    border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .result{
+    border-radius:var(--radius-sm);
+    border:1px solid var(--border);
+    overflow:hidden;
+    margin-top:4px;
+  }
+  .result-head{
+    display:flex;align-items:center;gap:9px;
+    padding:13px 16px;
+    font-weight:600;
+    font-size:13.5px;
+  }
+  .result-head.valid{background:var(--green-dim);color:var(--green);}
+  .result-head.invalid{background:var(--red-dim);color:#ff8788;}
+  .result-body{padding:4px 16px 14px;}
+  .result-row{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:10px 0;
+    border-bottom:1px solid var(--border-soft);
+    font-size:13px;
+  }
+  .result-row:last-child{border-bottom:none;}
+  .result-row .k{color:var(--text-faint);}
+  .result-row .v{font-weight:500;text-align:right;}
+  .result-row .v.mono{font-family:var(--font-mono);font-size:12px;}
+  .badge{
+    display:inline-block;
+    font-size:11px;font-weight:500;
+    padding:3px 9px;border-radius:999px;
+    background:var(--red-dim);color:var(--red);
+    border:1px solid var(--red-dim-border);
+  }
+
+  .revoke-link{
+    display:inline-block;margin-top:14px;
+    font-size:11.5px;color:var(--text-faint);
+    border-bottom:1px dashed var(--text-faint);
+  }
+  .revoke-link:hover{color:#ff8788;border-color:#ff8788;text-decoration:none;}
+
+  .issuer-status{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;color:var(--text-muted);
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:9px 12px;
+    margin-bottom:16px;
+  }
+
+  footer{
+    position:relative;z-index:1;
+    max-width:680px;margin:0 auto;
+    padding:8px 24px 40px;
+    text-align:center;
+    font-size:11.5px;
+    color:var(--text-faint);
+  }
+  footer a{color:var(--text-faint);}
+
+  @media (max-width:480px){
+    .field-row{grid-template-columns:1fr;}
+    .topbar{padding:18px 18px 14px;}
+    .container{padding:4px 18px 56px;}
+    .stats{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div class="watermark" aria-hidden="true">
+  <svg viewBox="0 0 800 340" preserveAspectRatio="none">
+    <polyline points="0,340 80,160 140,260 220,90 300,260 380,120 460,250 540,70 620,240 700,150 800,340" fill="none" stroke="#e84142" stroke-width="2"/>
+    <polyline points="0,340 60,230 130,300 210,180 290,300 360,200 440,300 520,160 600,290 680,210 800,300" fill="none" stroke="#f5f5f5" stroke-width="1"/>
+  </svg>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="2" y="2" width="24" height="24" rx="6" transform="rotate(45 14 14)" stroke="#e84142" stroke-width="2"/>
+      <path d="M9 14l3.5 3.5L19 10.5" stroke="#e84142" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="brand-text">
+      <h1>EduProof Tanzania</h1>
+      <p>Verified once. Trusted everywhere.</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="network-pill" id="networkPill">
+      <span class="dot" id="networkDot"></span>
+      <span id="networkLabel">Not connected</span>
+    </div>
+    <button class="btn btn-primary" id="connectBtn">Connect Wallet</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="stats">
+    <div class="stat-block">
+      <span class="stat-label">Certificates Issued</span>
+      <span class="stat-value" id="totalCerts">—</span>
+    </div>
+    <div class="stat-block" style="align-items:flex-end;">
+      <span class="stat-label">Contract · Fuji Testnet</span>
+      <a class="stat-value mono" id="contractLink" href="#" target="_blank" rel="noopener">0x4fBD…D9f3</a>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="EduProof sections">
+    <button class="tab-btn active" id="tabBtn-issue" role="tab" aria-selected="true" aria-controls="panel-issue">Issue</button>
+    <button class="tab-btn" id="tabBtn-verify" role="tab" aria-selected="false" aria-controls="panel-verify">Verify</button>
+    <button class="tab-btn" id="tabBtn-institutions" role="tab" aria-selected="false" aria-controls="panel-institutions">Institutions</button>
+  </nav>
+
+  <!-- ISSUE PANEL -->
+  <section class="panel active" id="panel-issue" role="tabpanel">
+    <div class="card">
+      <div class="card-title">Issue a Certificate</div>
+      <div class="card-sub">Only the platform owner or an approved institution wallet can issue.</div>
+
+      <div class="issuer-status" id="issuerStatus">Connect your wallet to check issuer status.</div>
+
+      <div id="issueStatus"></div>
+
+      <form id="issueForm">
+        <div class="field">
+          <label for="recipientName">Recipient full name</label>
+          <input type="text" id="recipientName" placeholder="e.g. Amani Mwakipesile" required />
+        </div>
+        <div class="field">
+          <label for="recipientId">Recipient ID</label>
+          <input type="text" id="recipientId" placeholder="e.g. SJUIT2026014" required />
+        </div>
+        <div class="field">
+          <label for="courseName">Course / program name</label>
+          <input type="text" id="courseName" placeholder="e.g. BSc Computer Science" required />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="certificateType">Certificate type</label>
+            <select id="certificateType" required>
+              <option value="">Select type</option>
+              <option value="Degree">Degree</option>
+              <option value="Bootcamp">Bootcamp</option>
+              <option value="Hackathon">Hackathon</option>
+              <option value="Training">Training</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="issueYear">Year of completion</label>
+            <input type="number" id="issueYear" min="2000" max="2100" placeholder="2026" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="issueSubmitBtn">Issue Certificate</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- VERIFY PANEL -->
+  <section class="panel" id="panel-verify" role="tabpanel">
+    <div class="card">
+      <div class="card-title">Verify a Certificate</div>
+      <div class="card-sub">No wallet needed — anyone can check a Recipient ID.</div>
+
+      <div id="verifyStatus"></div>
+
+      <form id="verifyForm">
+        <div class="field">
+          <label for="verifyId">Recipient ID</label>
+          <input type="text" id="verifyId" placeholder="e.g. SJUIT2026014" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="verifySubmitBtn">Verify Certificate</button>
+      </form>
+
+      <div id="verifyResult"></div>
+    </div>
+  </section>
+
+  <!-- INSTITUTIONS PANEL -->
+  <section class="panel" id="panel-institutions" role="tabpanel">
+    <div class="card">
+      <div class="card-title">Approve an Institution</div>
+      <div class="card-sub">Owner only — onboards a new institution wallet to issue certificates under its own name.</div>
+
+      <div id="approveStatus"></div>
+
+      <form id="approveForm">
+        <div class="field">
+          <label for="issuerAddress">Institution wallet address</label>
+          <input type="text" id="issuerAddress" placeholder="0x..." required />
+        </div>
+        <div class="field">
+          <label for="institutionName">Institution name</label>
+          <input type="text" id="institutionName" placeholder="e.g. SJUIT, Andela, ALX" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="approveSubmitBtn">Approve Institution</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Look Up an Institution</div>
+      <div class="card-sub">Check which institution name is registered to a wallet.</div>
+      <form id="lookupForm">
+        <div class="field">
+          <label for="lookupAddress">Wallet address</label>
+          <input type="text" id="lookupAddress" placeholder="0x..." required />
+        </div>
+        <button type="submit" class="btn btn-ghost btn-block" id="lookupSubmitBtn">Look Up</button>
+      </form>
+      <div id="lookupResult"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  SJUIT CSISE × Avalanche Blockchain Workshop 2026 · @fyne_tech<br>
+  Built on Avalanche Fuji Testnet — for demonstration purposes only.
+</footer>
+
+<script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ── Contract config ──────────────────────────────
+  const CONTRACT_ADDRESS = "0x4fBD4226A537f63b0d968Aea48fe219D7448D9f3";
+  const FUJI_CHAIN_ID_HEX = "0xa869"; // 43113
+  const FUJI_CHAIN_ID_DEC = 43113;
+  const FUJI_RPC = "https://api.avax-test.network/ext/bc/C/rpc";
+  const EXPLORER_BASE = "https://testnet.snowtrace.io";
+
+  const CONTRACT_ABI = [
+    "function owner() view returns (address)",
+    "function totalCertificates() view returns (uint256)",
+    "function institutions(address) view returns (string)",
+    "function approvedIssuers(address) view returns (bool)",
+    "function approveInstitution(address issuer, string institutionName)",
+    "function issueCertificate(string recipientName, string recipientId, string courseName, string certificateType, uint256 issueYear)",
+    "function verifyCertificate(string recipientId) view returns (string recipientName, string rid, string courseName, string institution, string certificateType, uint256 issueYear, uint256 issuedAt, bool isValid)",
+    "function revokeCertificate(string recipientId)",
+    "function getTotalCertificates() view returns (uint256)",
+    "function getInstitutionName(address issuer) view returns (string)"
+  ];
+
+  // ── Read-only provider (works with no wallet at all) ──
+  const readProvider = new ethers.providers.JsonRpcProvider(FUJI_RPC);
+  const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+
+  // ── Wallet state ─────────────────────────────────
+  let signer = null;
+  let writeContract = null;
+  let currentAccount = null;
+
+  // ── DOM refs ─────────────────────────────────────
+  const connectBtn = document.getElementById("connectBtn");
+  const networkDot = document.getElementById("networkDot");
+  const networkLabel = document.getElementById("networkLabel");
+  const totalCertsEl = document.getElementById("totalCerts");
+  const contractLink = document.getElementById("contractLink");
+  const issuerStatusEl = document.getElementById("issuerStatus");
+
+  contractLink.href = EXPLORER_BASE + "/address/" + CONTRACT_ADDRESS;
+
+  // ── Helpers ──────────────────────────────────────
+  function truncate(addr) {
+    return addr.slice(0, 6) + "…" + addr.slice(-4);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function statusBox(type, html) {
+    return '<div class="status ' + type + '">' + html + "</div>";
+  }
+
+  function spinnerStatus(message) {
+    return statusBox("info", '<span class="spinner"></span><span>' + message + "</span>");
+  }
+
+  function extractRevertReason(err) {
+    if (err && err.reason) return err.reason;
+    if (err && err.error && err.error.message) return cleanReason(err.error.message);
+    if (err && err.data && typeof err.data.message === "string") return cleanReason(err.data.message);
+    if (err && err.message) return cleanReason(err.message);
+    return "Transaction failed. Please try again.";
+  }
+
+  function cleanReason(msg) {
+    let m = msg.replace("execution reverted: ", "");
+    m = m.replace(/^.*reverted with reason string ['"]/, "").replace(/['"]$/, "");
+    if (m.length > 160) m = m.slice(0, 160) + "…";
+    return m;
+  }
+
+  function formatDate(unixSeconds) {
+    const d = new Date(unixSeconds * 1000);
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) +
+      " · " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  }
+
+  async function refreshTotalCertificates() {
+    try {
+      const total = await readContract.getTotalCertificates();
+      totalCertsEl.textContent = total.toString();
+    } catch (e) {
+      totalCertsEl.textContent = "—";
+    }
+  }
+
+  // ── Wallet connect ───────────────────────────────
+  async function connectWallet(promptUser) {
+    if (!window.ethereum) {
+      document.getElementById("issueStatus").innerHTML = statusBox(
+        "error",
+        "No wallet extension detected. Install Core Wallet or MetaMask to issue or approve certificates — verification works without one."
+      );
+      return;
+    }
+
+    try {
+      const accounts = promptUser
+        ? await window.ethereum.request({ method: "eth_requestAccounts" })
+        : await window.ethereum.request({ method: "eth_accounts" });
+
+      if (!accounts || accounts.length === 0) return;
+
+      await ensureFujiNetwork();
+
+      const browserProvider = new ethers.providers.Web3Provider(window.ethereum);
+      signer = browserProvider.getSigner();
+      currentAccount = accounts[0];
+      writeContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      networkDot.classList.add("live");
+      networkLabel.textContent = "Fuji · " + truncate(currentAccount);
+      connectBtn.textContent = "Connected";
+      connectBtn.disabled = true;
+
+      await refreshIssuerStatus();
+    } catch (err) {
+      document.getElementById("issueStatus").innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    }
+  }
+
+  async function ensureFujiNetwork() {
+    const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
+    if (chainIdHex === FUJI_CHAIN_ID_HEX) return;
+
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: FUJI_CHAIN_ID_HEX }]
+      });
+    } catch (switchErr) {
+      if (switchErr.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: FUJI_CHAIN_ID_HEX,
+            chainName: "Avalanche Fuji Testnet",
+            nativeCurrency: { name: "Avalanche", symbol: "AVAX", decimals: 18 },
+            rpcUrls: [FUJI_RPC],
+            blockExplorerUrls: [EXPLORER_BASE]
+          }]
+        });
+      } else {
+        throw switchErr;
+      }
+    }
+  }
+
+  async function refreshIssuerStatus() {
+    if (!currentAccount) return;
+    try {
+      const [ownerAddr, isApproved] = await Promise.all([
+        readContract.owner(),
+        readContract.approvedIssuers(currentAccount)
+      ]);
+      const isOwner = ownerAddr.toLowerCase() === currentAccount.toLowerCase();
+
+      if (isOwner) {
+        issuerStatusEl.innerHTML = "✓ Connected as <strong>platform owner</strong> — full issuing &amp; admin rights.";
+      } else if (isApproved) {
+        const name = await readContract.institutions(currentAccount);
+        issuerStatusEl.innerHTML = "✓ Approved issuer for <strong>" + escapeHtml(name) + "</strong>.";
+      } else {
+        issuerStatusEl.innerHTML = "⚠ This wallet is not an approved issuer. Ask the platform owner to approve it under Institutions.";
+      }
+    } catch (e) {
+      issuerStatusEl.textContent = "Could not check issuer status.";
+    }
+  }
+
+  connectBtn.addEventListener("click", () => connectWallet(true));
+
+  if (window.ethereum) {
+    window.ethereum.on && window.ethereum.on("accountsChanged", () => connectWallet(false));
+    window.ethereum.on && window.ethereum.on("chainChanged", () => window.location.reload());
+    connectWallet(false); // silent restore if already connected
+  }
+
+  // ── Tabs ─────────────────────────────────────────
+  const tabs = ["issue", "verify", "institutions"];
+  tabs.forEach((name) => {
+    document.getElementById("tabBtn-" + name).addEventListener("click", () => {
+      tabs.forEach((n) => {
+        document.getElementById("tabBtn-" + n).classList.toggle("active", n === name);
+        document.getElementById("tabBtn-" + n).setAttribute("aria-selected", n === name);
+        document.getElementById("panel-" + n).classList.toggle("active", n === name);
+      });
+    });
+  });
+
+  // ── Issue form ───────────────────────────────────
+  document.getElementById("issueForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("issueStatus");
+    const btn = document.getElementById("issueSubmitBtn");
+
+    if (!signer) {
+      statusEl.innerHTML = statusBox("error", "Connect your wallet first.");
+      return;
+    }
+
+    const name = document.getElementById("recipientName").value.trim();
+    const id = document.getElementById("recipientId").value.trim();
+    const course = document.getElementById("courseName").value.trim();
+    const certType = document.getElementById("certificateType").value;
+    const year = document.getElementById("issueYear").value;
+
+    if (!name || !id || !course || !certType || !year) {
+      statusEl.innerHTML = statusBox("error", "Please fill in every field.");
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.innerHTML = spinnerStatus("Waiting for wallet confirmation…");
+
+    try {
+      const tx = await writeContract.issueCertificate(name, id, course, certType, parseInt(year, 10));
+      statusEl.innerHTML = spinnerStatus(
+        'Transaction sent — <a href="' + EXPLORER_BASE + "/tx/" + tx.hash + '" target="_blank" rel="noopener">view on Snowtrace</a>. Waiting for confirmation…'
+      );
+      await tx.wait();
+      statusEl.innerHTML = statusBox(
+        "success",
+        "Certificate issued for <strong>" + escapeHtml(name) + "</strong> (ID: <code>" + escapeHtml(id) + "</code>)."
+      );
+      document.getElementById("issueForm").reset();
+      await refreshTotalCertificates();
+    } catch (err) {
+      statusEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── Verify form ──────────────────────────────────
+  document.getElementById("verifyForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("verifyStatus");
+    const resultEl = document.getElementById("verifyResult");
+    const btn = document.getElementById("verifySubmitBtn");
+    const id = document.getElementById("verifyId").value.trim();
+
+    if (!id) return;
+
+    statusEl.innerHTML = "";
+    resultEl.innerHTML = "";
+    btn.disabled = true;
+    statusEl.innerHTML = spinnerStatus("Checking the blockchain…");
+
+    try {
+      const r = await readContract.verifyCertificate(id);
+      statusEl.innerHTML = "";
+
+      if (!r.isValid) {
+        resultEl.innerHTML =
+          '<div class="result"><div class="result-head invalid">✕ No valid certificate found</div>' +
+          '<div class="result-body"><p style="font-size:12.5px;color:var(--text-muted);padding:12px 0;">' +
+          "This Recipient ID doesn't match an issued certificate, or it has been revoked." +
+          "</p></div></div>";
+        return;
+      }
+
+      resultEl.innerHTML =
+        '<div class="result"><div class="result-head valid">✓ Certificate Verified</div><div class="result-body">' +
+        row("Recipient", escapeHtml(r.recipientName)) +
+        row("Recipient ID", escapeHtml(r.rid), true) +
+        row("Course / Program", escapeHtml(r.courseName)) +
+        row("Institution", escapeHtml(r.institution)) +
+        row("Certificate Type", '<span class="badge">' + escapeHtml(r.certificateType) + "</span>", false, true) +
+        row("Year of Completion", r.issueYear.toString()) +
+        row("Issued On-Chain", formatDate(r.issuedAt.toNumber())) +
+        "</div></div>";
+    } catch (err) {
+      statusEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function row(k, v, mono, raw) {
+    return '<div class="result-row"><span class="k">' + k + '</span><span class="v' + (mono ? " mono" : "") + '">' + (raw ? v : v) + "</span></div>";
+  }
+
+  // ── Approve institution form ────────────────────
+  document.getElementById("approveForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("approveStatus");
+    const btn = document.getElementById("approveSubmitBtn");
+    const addr = document.getElementById("issuerAddress").value.trim();
+    const name = document.getElementById("institutionName").value.trim();
+
+    if (!signer) {
+      statusEl.innerHTML = statusBox("error", "Connect your wallet first.");
+      return;
+    }
+    if (!ethers.utils.isAddress(addr)) {
+      statusEl.innerHTML = statusBox("error", "That doesn't look like a valid wallet address.");
+      return;
+    }
+    if (!name) {
+      statusEl.innerHTML = statusBox("error", "Enter an institution name.");
+      return;
+    }
+
+    btn.disabled = true;
+    statusEl.innerHTML = spinnerStatus("Waiting for wallet confirmation…");
+
+    try {
+      const tx = await writeContract.approveInstitution(addr, name);
+      statusEl.innerHTML = spinnerStatus(
+        'Transaction sent — <a href="' + EXPLORER_BASE + "/tx/" + tx.hash + '" target="_blank" rel="noopener">view on Snowtrace</a>. Waiting for confirmation…'
+      );
+      await tx.wait();
+      statusEl.innerHTML = statusBox("success", escapeHtml(name) + " can now issue certificates from " + truncate(addr) + ".");
+      document.getElementById("approveForm").reset();
+    } catch (err) {
+      statusEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── Lookup institution form ─────────────────────
+  document.getElementById("lookupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const resultEl = document.getElementById("lookupResult");
+    const addr = document.getElementById("lookupAddress").value.trim();
+
+    if (!ethers.utils.isAddress(addr)) {
+      resultEl.innerHTML = statusBox("error", "That doesn't look like a valid wallet address.");
+      return;
+    }
+
+    resultEl.innerHTML = spinnerStatus("Looking up…");
+    try {
+      const name = await readContract.getInstitutionName(addr);
+      resultEl.innerHTML = name
+        ? statusBox("success", truncate(addr) + " is registered as <strong>" + escapeHtml(name) + "</strong>.")
+        : statusBox("info", "No institution name registered for this address.");
+    } catch (err) {
+      resultEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    }
+  });
+
+  // ── Initial load ─────────────────────────────────
+  refreshTotalCertificates();
+})();
+</script>
+</body>
+</html>
