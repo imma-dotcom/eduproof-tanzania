@@ -54,12 +54,14 @@ This is the third iteration of the contract. Earlier versions (`SJUITCertChain`,
 ## Screenshots / Demo
 
 
-1. [landing page!](landingpage.png)
-2. [Wallet connected!](<Wallet connected.png>)
-3. [Issue form filled in!](<Issue form filled in.png>)
-4. [Successful issuance confirmation!](<Successful issuance confirmation.png>)
-5. [Verify result — real certificate!](<Verify result — real certificate.png>)
-6. [Verify result — fake / not-found ID!](<Verify result — fake-not-found ID.png>)
+1. Landing page
+2. Wallet connected
+3. Issue form filled in
+4. Successful issuance confirmation
+5. Verify result – real certificate
+6. Verify result – fake / not-found ID
+
+---
 
 ![Landing Page](screenshots/landingpage.png)
 ![Wallet Connected](screenshots/Wallet%20connected.png)
@@ -67,6 +69,7 @@ This is the third iteration of the contract. Earlier versions (`SJUITCertChain`,
 ![Successful Issuance](screenshots/Successful%20issuance%20confirmation.png)
 ![Verify Real Certificate](screenshots/Verify%20result%20-%20real%20certificate.png)
 ![Verify Fake ID](screenshots/Verify%20result%20-%20fake%20-%20not-found%20ID.png)
+
 
 
 ## Team Members
