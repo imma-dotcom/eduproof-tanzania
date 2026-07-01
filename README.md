@@ -2,6 +2,8 @@
 
 A blockchain-based certificate verification system built on Avalanche, created for the SJUIT × Avalanche Blockchain Workshop 2026 Hackathon.
 
+**Live contract:** [`0x4fBD4226A537f63b0d968Aea48fe219D7448D9f3`](https://testnet.snowtrace.io/address/0x4fBD4226A537f63b0d968Aea48fe219D7448D9f3) · Avalanche Fuji Testnet
+
 ---
 
 ## Problem Statement
@@ -14,7 +16,7 @@ EduProof Tanzania lets approved institutions — universities, bootcamps, hackat
 
 ## Track Selected
 
-`Education & Credentials`
+Track 2: Education & Credentials
 
 ## Features
 
@@ -27,12 +29,14 @@ EduProof Tanzania lets approved institutions — universities, bootcamps, hackat
 
 ## Tech Stack
 
-- **Solidity ^0.8.0** — smart contract
-- **Avalanche Fuji Testnet** (C-Chain, Chain ID 43113)
-- **Remix IDE** — contract development and deployment
-- **Core Wallet** — signing transactions
-- **ethers.js v5.7.2** — frontend ↔ blockchain connection
-- **HTML / CSS / vanilla JavaScript** — frontend, no framework
+| Layer | Technology |
+|---|---|
+| Smart Contract | Solidity ^0.8.0 |
+| Blockchain | Avalanche Fuji Testnet (C-Chain, Chain ID 43113) |
+| Development | Remix IDE |
+| Wallet | Core Wallet |
+| Frontend ↔ Blockchain | ethers.js v5.7.2 |
+| Frontend | HTML / CSS / Vanilla JavaScript (no framework) |
 
 ## Smart Contract
 
@@ -42,14 +46,20 @@ EduProof Tanzania lets approved institutions — universities, bootcamps, hackat
 
 This is the third iteration of the contract. Earlier versions (`SJUITCertChain`, `SJUITCertificateV3`) proved the core idea for a single university before this version generalized it so any approved Tanzanian institution can issue under its own name.
 
+### How Avalanche is used
+
+Every certificate is a transaction on a Solidity smart contract deployed on the Avalanche C-Chain. Avalanche's fast finality confirms each certificate in seconds. Once written, a record cannot be silently edited — only revoked by the platform admin, and that revocation itself emits a permanent on-chain event with a timestamp. The approved-issuer model means no single institution controls the whole system.
+
 ## How to Run Locally
 
-1. Clone this repository.
-2. Open `EduProofTanzania.html` directly in a browser, or open the folder in VS Code and run it with the **Live Server** extension.
-3. Install the [Core Wallet](https://core.app/) or MetaMask browser extension.
-4. Connect your wallet — the app will prompt you to switch to or add Avalanche Fuji Testnet automatically.
-5. Get free testnet AVAX from the [Avalanche Fuji Faucet](https://core.app/tools/testnet-faucet/) to pay for transactions.
-6. Use the **Verify** tab to check a certificate (no wallet needed), or the **Issue** tab to create one (requires an approved wallet).
+1. Clone this repository
+2. Open `EduProofTanzania.html` directly in any browser — no build step, no dependencies to install
+3. Install [Core Wallet](https://core.app/) or MetaMask browser extension
+4. Connect your wallet — the app automatically prompts to switch to Avalanche Fuji Testnet
+5. Get free testnet AVAX from the [Avalanche Fuji Faucet](https://core.app/tools/testnet-faucet/)
+6. **Verify tab** — works with no wallet, anyone can check a certificate
+7. **Issue tab** — requires an approved wallet to create a certificate
+8. **Institutions tab** — owner only, approve new institution wallets
 
 ## Screenshots / Demo
 
@@ -73,7 +83,9 @@ This is the third iteration of the contract. Earlier versions (`SJUITCertChain`,
 
 ## Team Members
 
-Submitted individually by `Godwin Shirima` (@fyne__tech) — SJUIT, Dar es Salaam, Tanzania.
+Built and submitted individually by **Godwin Shirima** (@fyne\_\_tech) — SJUIT, Dar es Salaam, Tanzania.
+
+Participated in the 4-week SJUIT × Avalanche Blockchain Workshop 2026, in collaboration with Ava Labs, featuring resource person Mr. Shaheer Karrim. Completed the official Avalanche Fundamentals course on build.avax.network.
 
 ## Future Improvements
 
@@ -82,3 +94,7 @@ Submitted individually by `Godwin Shirima` (@fyne__tech) — SJUIT, Dar es Salaa
 - Add an in-app revoke action for admins directly from the verify screen
 - Add offline-friendly verification for low-connectivity areas
 - Onboard additional institutions beyond SJUIT — other universities, bootcamps, and eventually the wider East African Community
+
+---
+
+*Built for the SJUIT × Avalanche Blockchain Workshop 2026 Hackathon · @fyne\_\_tech · Dar es Salaam, Tanzania 🇹🇿*
