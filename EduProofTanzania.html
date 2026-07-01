@@ -476,6 +476,23 @@
       </form>
       <div id="lookupResult"></div>
     </div>
+
+    <div class="card" style="border-color:rgba(232,65,66,0.22);">
+      <div class="card-title" style="color:var(--red);">&#9888; Revoke a Certificate</div>
+      <div class="card-sub">Owner only — permanently marks a certificate as invalid. The original record stays on-chain but will no longer pass verification. This cannot be undone.</div>
+      <div id="revokeStatus"></div>
+      <form id="revokeForm">
+        <div class="field">
+          <label for="revokeId">Recipient ID to revoke</label>
+          <input type="text" id="revokeId" placeholder="e.g. SJUIT2026014" required />
+        </div>
+        <button type="submit" class="btn btn-block" id="revokeSubmitBtn"
+          style="background:transparent;border:1.5px solid var(--red);color:var(--red);font-weight:600;">
+          Revoke Certificate
+        </button>
+      </form>
+    </div>
+
   </section>
 
 </main>
@@ -833,6 +850,124 @@
         : statusBox("info", "No institution name registered for this address.");
     } catch (err) {
       resultEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    }
+  });
+
+  // ── Revoke form ──────────────────────────────────
+  document.getElementById("revokeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("revokeStatus");
+    const btn = document.getElementById("revokeSubmitBtn");
+    const id = document.getElementById("revokeId").value.trim();
+
+    if (!signer) {
+      statusEl.innerHTML = statusBox("error", "Connect your wallet first.");
+      return;
+    }
+    if (!id) {
+      statusEl.innerHTML = statusBox("error", "Enter a Recipient ID.");
+      return;
+    }
+
+    // Safety: verify the certificate exists and is still valid before revoking
+    statusEl.innerHTML = spinnerStatus("Checking certificate exists…");
+    try {
+      const r = await readContract.verifyCertificate(id);
+      if (!r.isValid) {
+        statusEl.innerHTML = statusBox("error", "No active certificate found for ID <code>" + escapeHtml(id) + "</code> — it may not exist or is already revoked.");
+        return;
+      }
+
+      // Show what we're about to revoke so owner can confirm
+      const confirmed = window.confirm(
+        "You are about to revoke the certificate for:\n\n" +
+        "Name: " + r.recipientName + "\n" +
+        "ID: " + id + "\n" +
+        "Course: " + r.courseName + "\n" +
+        "Institution: " + r.institution + "\n\n" +
+        "This cannot be undone. Continue?"
+      );
+      if (!confirmed) {
+        statusEl.innerHTML = statusBox("info", "Revocation cancelled.");
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.innerHTML = spinnerStatus("Waiting for wallet confirmation…");
+      const tx = await writeContract.revokeCertificate(id);
+      statusEl.innerHTML = spinnerStatus(
+        'Transaction sent — <a href="' + EXPLORER_BASE + "/tx/" + tx.hash + '" target="_blank" rel="noopener">view on Snowtrace</a>. Waiting for confirmation…'
+      );
+      await tx.wait();
+      statusEl.innerHTML = statusBox(
+        "error",
+        "Certificate for <strong>" + escapeHtml(r.recipientName) + "</strong> (ID: <code>" + escapeHtml(id) + "</code>) has been permanently revoked and is now invalid."
+      );
+      document.getElementById("revokeForm").reset();
+      await refreshTotalCertificates();
+    } catch (err) {
+      statusEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── Revoke form ──────────────────────────────────
+  document.getElementById("revokeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("revokeStatus");
+    const btn = document.getElementById("revokeSubmitBtn");
+    const id = document.getElementById("revokeId").value.trim();
+
+    if (!signer) {
+      statusEl.innerHTML = statusBox("error", "Connect your wallet first.");
+      return;
+    }
+    if (!id) {
+      statusEl.innerHTML = statusBox("error", "Enter a Recipient ID.");
+      return;
+    }
+
+    // First check the cert exists and is still valid
+    statusEl.innerHTML = spinnerStatus("Checking certificate…");
+    try {
+      const r = await readContract.verifyCertificate(id);
+      if (!r.isValid) {
+        statusEl.innerHTML = statusBox("error", "No active certificate found for ID <code>" + escapeHtml(id) + "</code> — it may not exist or is already revoked.");
+        return;
+      }
+
+      // Confirm dialog shows what is about to be revoked
+      const confirmed = window.confirm(
+        "You are about to revoke the certificate for:\n\n" +
+        "Name: " + r.recipientName + "\n" +
+        "ID: " + id + "\n" +
+        "Course: " + r.courseName + "\n" +
+        "Institution: " + r.institution + "\n\n" +
+        "This cannot be undone. Continue?"
+      );
+      if (!confirmed) {
+        statusEl.innerHTML = statusBox("info", "Revocation cancelled.");
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.innerHTML = spinnerStatus("Waiting for wallet confirmation…");
+      const tx = await writeContract.revokeCertificate(id);
+      statusEl.innerHTML = spinnerStatus(
+        'Transaction sent — <a href="' + EXPLORER_BASE + "/tx/" + tx.hash + '" target="_blank" rel="noopener">view on Snowtrace</a>. Waiting for confirmation…'
+      );
+      await tx.wait();
+      statusEl.innerHTML = statusBox(
+        "error",
+        "Certificate for <strong>" + escapeHtml(r.recipientName) + "</strong> (ID: <code>" + escapeHtml(id) + "</code>) has been permanently revoked and is now invalid."
+      );
+      document.getElementById("revokeForm").reset();
+      await refreshTotalCertificates();
+    } catch (err) {
+      statusEl.innerHTML = statusBox("error", escapeHtml(extractRevertReason(err)));
+    } finally {
+      btn.disabled = false;
     }
   });
 
